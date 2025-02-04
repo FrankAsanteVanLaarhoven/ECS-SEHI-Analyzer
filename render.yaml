@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: sehi-dashboard
+    name: ecs-sehi-dashboard
     runtime: python
     buildCommand: |
       apt-get update && apt-get install -y portaudio19-dev python3-pyaudio
@@ -9,7 +9,7 @@ services:
     startCommand: streamlit run src/dashboard/dashboard.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.9.18
       - key: OPENAI_API_KEY
         sync: false
     healthCheckPath: /_stcore/health

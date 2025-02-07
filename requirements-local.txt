@@ -1,5 +1,0 @@
-# Include all requirements from main requirements.txt
--r requirements.txt
-
-# Additional local development dependencies
-PyAudio>=0.2.11 

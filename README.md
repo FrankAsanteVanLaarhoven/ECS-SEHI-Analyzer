@@ -27,7 +27,7 @@ This project is deployed using Render.com. The deployment configuration can be f
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/franvanlaarhoven/ecs_sehi-analysis-dashboard.git
+git clone https://github.com/FrankAsanteVanLaarhoven/ecs_sehi-analysis-dashboard.git
 cd ecs_sehi-analysis-dashboard
 ```
 

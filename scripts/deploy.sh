@@ -2,7 +2,7 @@
 
 # Configuration
 REPO="ecs_sehi-analysis-dashboard"
-USERNAME="franvanlaarhoven"
+USERNAME="FrankAsanteVanLaarhoven"
 EMAIL="info@franvanlaarhoven.cco.uk"
 BRANCH="main"
 
@@ -11,6 +11,10 @@ if [ ! -d .git ]; then
     git init
     git branch -M main
 fi
+
+# Configure git
+git config user.name "$USERNAME"
+git config user.email "$EMAIL"
 
 # Add remote if not already added
 if ! git remote | grep -q origin; then
@@ -24,4 +28,4 @@ git add .
 git commit -m "Update deployment configuration and dependencies"
 
 # Push to remote
-git push -u origin $BRANCH 
+git push -u origin $BRANCH

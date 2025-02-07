@@ -2,17 +2,25 @@ import streamlit as st
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, List
 import pandas as pd
+from dataclasses import dataclass
+
+@dataclass
+class VisualizationConfig:
+    """Configuration for 4D visualization"""
+    resolution: Tuple[int, int] = (512, 512)
+    time_steps: int = 50
+    colorscale: str = "Viridis"
+    opacity: float = 0.7
+    surface_count: int = 15
+    animation_frame_duration: int = 100
 
 class DataVisualizer4D:
-    def __init__(self):
+    def __init__(self, config: Optional[VisualizationConfig] = None):
+        self.config = config or VisualizationConfig()
         self.current_data = None
-        self.settings = {
-            'resolution': 100,
-            'colormap': 'viridis',
-            'animation_speed': 30
-        }
+        self.figure = None
     
     def preprocess_data(self, data: Optional[np.ndarray] = None) -> np.ndarray:
         """Preprocess 4D data for visualization"""
@@ -94,7 +102,7 @@ class DataVisualizer4D:
                     'label': '▶️ Play',
                     'method': 'animate',
                     'args': [None, {
-                        'frame': {'duration': self.settings['animation_speed'], 'redraw': True},
+                        'frame': {'duration': self.config.animation_frame_duration, 'redraw': True},
                         'fromcurrent': True,
                         'mode': 'immediate',
                     }]
@@ -136,11 +144,11 @@ class DataVisualizer4D:
         st.sidebar.subheader("🎮 Visualization Controls")
         
         # Animation speed
-        self.settings['animation_speed'] = st.sidebar.slider(
+        self.config.animation_frame_duration = st.sidebar.slider(
             "Frame Duration (ms)",
             min_value=50,
             max_value=1000,
-            value=self.settings['animation_speed'],
+            value=self.config.animation_frame_duration,
             step=50,
             key="viz_frame_duration"
         )
@@ -150,7 +158,7 @@ class DataVisualizer4D:
             "Colormap",
             ["Viridis", "Plasma", "Inferno", "Magma"],
             key="viz_colormap",
-            index=["Viridis", "Plasma", "Inferno", "Magma"].index(self.settings['colormap'])
+            index=["Viridis", "Plasma", "Inferno", "Magma"].index(self.config.colorscale)
         )
         
         # View settings
@@ -337,6 +345,124 @@ class DataVisualizer4D:
             st.error(f"Error creating defect map: {str(e)}")
             return None
 
-    def update_settings(self, **kwargs):
-        """Update visualization settings"""
-        self.settings.update(kwargs) 
+    def create_4d_visualization(self, data: np.ndarray, timestamps: List[float]) -> go.Figure:
+        """Create 4D visualization of temporal-spatial data"""
+        if data.ndim != 4:  # (time, x, y, features)
+            raise ValueError("Data must be 4-dimensional (time, x, y, features)")
+            
+        self.current_data = data
+        fig = go.Figure()
+        
+        # Create frames for temporal evolution
+        frames = []
+        for t in range(min(len(timestamps), data.shape[0])):
+            frame = self._create_time_slice(data[t], timestamps[t])
+            frames.append(frame)
+            
+        # Add base plot
+        fig.add_trace(frames[0].data[0])
+        
+        # Configure animation
+        fig.frames = frames
+        fig.update_layout(
+            scene=dict(
+                xaxis_title="X Position (nm)",
+                yaxis_title="Y Position (nm)",
+                zaxis_title="Intensity",
+                camera=dict(
+                    eye=dict(x=1.5, y=1.5, z=1.5)
+                )
+            ),
+            updatemenus=[self._create_animation_menu()],
+            sliders=[self._create_time_slider(timestamps)]
+        )
+        
+        self.figure = fig
+        return fig
+    
+    def render_interactive_view(self, title: str = "4D Material Analysis"):
+        """Render interactive visualization in Streamlit"""
+        if self.figure is None:
+            st.warning("No visualization data available")
+            return
+            
+        st.markdown(f"### {title}")
+        
+        # Control panel
+        with st.expander("Visualization Controls", expanded=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                colorscale = st.selectbox(
+                    "Color Scale",
+                    ["Viridis", "Plasma", "Inferno", "Magma", "Cividis"]
+                )
+                opacity = st.slider("Opacity", 0.0, 1.0, self.config.opacity)
+                
+            with col2:
+                surface_count = st.slider(
+                    "Surface Count",
+                    5, 30, self.config.surface_count
+                )
+                frame_duration = st.slider(
+                    "Animation Speed (ms)",
+                    50, 500, self.config.animation_frame_duration
+                )
+                
+        # Update visualization
+        self.config.colorscale = colorscale
+        self.config.opacity = opacity
+        self.config.surface_count = surface_count
+        self.config.animation_frame_duration = frame_duration
+        
+        if self.current_data is not None:
+            self.figure.update_traces(
+                colorscale=colorscale,
+                opacity=opacity
+            )
+            
+        # Display plot
+        st.plotly_chart(self.figure, use_container_width=True)
+        
+    def _create_time_slice(self, data_slice: np.ndarray, timestamp: float) -> go.Frame:
+        """Create a single time slice for visualization"""
+        surface = go.Surface(
+            x=np.linspace(0, 1, data_slice.shape[0]),
+            y=np.linspace(0, 1, data_slice.shape[1]),
+            z=data_slice,
+            colorscale=self.config.colorscale,
+            opacity=self.config.opacity,
+            showscale=True,
+            name=f"t={timestamp:.2f}s"
+        )
+        
+        return go.Frame(
+            data=[surface],
+            name=str(timestamp)
+        )
+    
+    def _create_animation_menu(self) -> Dict:
+        """Create animation control menu"""
+        return dict(
+            type="buttons",
+            showactive=False,
+            buttons=[
+                dict(label="Play",
+                     method="animate",
+                     args=[None, {"frame": {"duration": self.config.animation_frame_duration}}]),
+                dict(label="Pause",
+                     method="animate",
+                     args=[[None], {"frame": {"duration": 0}}])
+            ]
+        )
+    
+    def _create_time_slider(self, timestamps: List[float]) -> Dict:
+        """Create time slider for animation control"""
+        return dict(
+            active=0,
+            currentvalue={"prefix": "Time: ", "suffix": " s"},
+            steps=[dict(
+                method="animate",
+                args=[[str(t)], {"frame": {"duration": self.config.animation_frame_duration}}],
+                label=f"{t:.2f}"
+            ) for t in timestamps]
+        ) 

@@ -13,47 +13,60 @@ Advanced scientific analysis and visualization platform for ECS SEHI data.
 - 🌱 Sustainability metrics
 - 🔮 Quantum computing integration
 
-## Setup
+## Deployment
+
+This project is deployed using Render.com. The deployment configuration can be found in `render.yaml`.
+
+### Requirements
+
+- Python 3.9.18
+- PortAudio (for audio processing)
+- OpenAI API key (for AI features)
+
+### Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/FrankAsanteVanLaarhoven/ecs_sehi-analysis-dashboard.git
+git clone https://github.com/franvanlaarhoven/ecs_sehi-analysis-dashboard.git
 cd ecs_sehi-analysis-dashboard
 ```
 
-2. Create and activate virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Set up environment variables:
+3. Set up environment variables:
 ```bash
-cp .env.template .env
+cp .env.example .env
 # Edit .env with your configuration
 ```
 
-5. Run the application:
+4. Run the dashboard:
 ```bash
-streamlit run pages/01_collaboration.py
+streamlit run src/dashboard/dashboard.py
 ```
+
+### Deployment Configuration
+
+The application is configured to deploy automatically on Render.com with the following specifications:
+
+- Runtime: Python 3.9.18
+- Region: Frankfurt
+- Auto Deploy: Enabled
+- Health Check: /_stcore/health
+
+### Development
+
+To contribute to this project:
+
+1. Create a new branch
+2. Make your changes
+3. Submit a pull request
 
 ## Documentation
 
 For detailed documentation, please visit the [Wiki](https://github.com/FrankAsanteVanLaarhoven/ecs_sehi-analysis-dashboard/wiki).
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 

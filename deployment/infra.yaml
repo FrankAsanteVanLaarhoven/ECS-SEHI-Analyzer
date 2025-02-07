@@ -1,0 +1,27 @@
+# Infrastructure as Code (deployment/infra.yaml)
+apiVersion: quantum-compute/v1alpha1
+kind: QuantumStack
+metadata:
+  name: sehi-analytics
+spec:
+  components:
+    - name: quantum-core
+      type: qpu-cluster
+      specs:
+        qubits: 1024
+        topology: honeycomb
+        error_rate: 1e-4
+    
+    - name: neuromorphic-ui
+      type: neuro-processor
+      specs:
+        neurons: 1e6
+        synapses: 1e9
+        learning_rate: 0.001
+    
+    - name: temporal-db
+      type: chrono-store
+      specs:
+        tps: 1e6
+        retention: 7d
+        resolution: 1ns

@@ -1,0 +1,36 @@
+# .github/workflows/quantum-ci.yaml
+name: Quantum CI
+
+on: [push, pull_request]
+
+jobs:
+  quantum-validation:
+    runs-on: quantum-ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Quantum Environment
+        uses: quantum-actions/setup-qiskit@v1
+        with:
+          version: 0.39.3
+      
+      - name: Run Entanglement Tests
+        run: pytest tests/quantum --entanglement-fidelity=0.999
+      
+      - name: Security Audit
+        uses: quantum-actions/security-scan@v2
+        with:
+          compliance: nist-pqc
+
+    container: nvidia/cuda:11.8.0-base
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      - name: Run Quantum Tests
+        run: |
+          pytest tests/quantum_validation.py --cov=src --cov-report=xml

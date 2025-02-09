@@ -1,4 +1,11 @@
 import streamlit as st
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+root_path = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(root_path))
+
 from src.ecs_sehi_analyzer.core.config import setup_page
 from src.ecs_sehi_analyzer.core.validation import validate_session_state
 from src.ecs_sehi_analyzer.core.io_utils import DataIO

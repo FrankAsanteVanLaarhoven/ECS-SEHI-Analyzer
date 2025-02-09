@@ -36,3 +36,6 @@ Thumbs.db
 # Project specific
 *.log
 .streamlit/secrets.toml
+.venv/
+__pycache__/
+*.pyc

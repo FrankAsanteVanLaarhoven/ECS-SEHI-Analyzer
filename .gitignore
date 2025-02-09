@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -22,6 +21,7 @@ wheels/
 venv/
 ENV/
 .env
+.venv/
 
 # IDE
 .idea/
@@ -36,9 +36,4 @@ Thumbs.db
 # Project specific
 *.log
 .streamlit/secrets.toml
-.venv/
-__pycache__/
-*.pyc
 /backups/
-__pycache__/
-*.pyc

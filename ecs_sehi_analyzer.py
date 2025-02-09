@@ -2,9 +2,9 @@ import streamlit as st
 import sys
 from pathlib import Path
 
-# Add project root to Python path
-root_path = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(root_path))
+# Fix: Remove incorrect path manipulation since file is in root
+# root_path = Path(__file__).parent.parent.parent  # Remove this
+# sys.path.insert(0, str(root_path))  # Remove this
 
 from src.ecs_sehi_analyzer.core.config import setup_page
 from src.ecs_sehi_analyzer.core.validation import validate_session_state
